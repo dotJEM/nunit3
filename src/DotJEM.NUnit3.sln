@@ -1,0 +1,31 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 16
+VisualStudioVersion = 16.0.29102.190
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "DotJEM.NUnit3", "DotJEM.NUnit3\DotJEM.NUnit3.csproj", "{D272495B-7ED5-42E6-9D4E-B146470A73BB}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DotJEM.NUnit3.Tests", "DotJEM.NUnit3.Tests\DotJEM.NUnit3.Tests.csproj", "{08525CF7-9F2B-48AC-8FD3-6EA2D11F895C}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{D272495B-7ED5-42E6-9D4E-B146470A73BB}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{D272495B-7ED5-42E6-9D4E-B146470A73BB}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{D272495B-7ED5-42E6-9D4E-B146470A73BB}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{D272495B-7ED5-42E6-9D4E-B146470A73BB}.Release|Any CPU.Build.0 = Release|Any CPU
+		{08525CF7-9F2B-48AC-8FD3-6EA2D11F895C}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{08525CF7-9F2B-48AC-8FD3-6EA2D11F895C}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{08525CF7-9F2B-48AC-8FD3-6EA2D11F895C}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{08525CF7-9F2B-48AC-8FD3-6EA2D11F895C}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {CFFA5EC9-6EBB-43BD-92C4-5E4F1A86B45D}
+	EndGlobalSection
+EndGlobal
