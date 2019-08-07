@@ -9,26 +9,40 @@ namespace DotJEM.NUnit3.Constraints
     {
         public override ConstraintResult ApplyTo<TActual>(TActual actual)
         {
-            MatchResult result = Matches(actual);
+            IMatchResult result = Matches(actual);
             return new BaseConstraintResult(this, actual, result);
         }
 
-        protected abstract MatchResult Matches<T>(T actual);
+        protected abstract IMatchResult Matches<T>(T actual);
+    }
+    
+    public interface IMatchResult
+    {
+        bool Matches { get; }
+        void WriteTo(MessageWriter writer);
     }
 
-    public class MatchResult
+    public class MatchResult : IMatchResult
     {
-        public bool Failed => !Matches;
+        private readonly string actualMessage;
+        private readonly string expectedMessage;
+
         public bool Matches { get; }
 
-        public string ActualMessage { get; }
-        public string ExpectedMessage { get; }
-
-        protected MatchResult(bool matches, string actualMessage, string expectedMessage)
+        protected MatchResult(bool matches, string expectedMessage, string actualMessage)
         {
             Matches = matches;
-            ActualMessage = actualMessage;
-            ExpectedMessage = expectedMessage;
+            this.actualMessage = actualMessage;
+            this.expectedMessage = expectedMessage;
+        }
+
+        public void WriteTo(MessageWriter writer)
+        {
+            writer.Write(TextMessageWriter.Pfx_Expected);
+            writer.WriteLine(expectedMessage);
+
+            writer.Write(TextMessageWriter.Pfx_Actual);
+            writer.WriteLine(actualMessage);
         }
 
         public static MatchResult Fail(string expectedMessage, string actualMessage)
@@ -36,44 +50,23 @@ namespace DotJEM.NUnit3.Constraints
 
         public static MatchResult Success() 
             => new MatchResult(true, string.Empty, string.Empty);
-
-        public static implicit operator MatchResult(bool value)
-        {
-            return value
-                ? Success()
-                : Fail(null, null);
-        }
     }
-
 
     public class BaseConstraintResult : ConstraintResult
     {
-        private readonly MatchResult result;
+        private readonly IMatchResult result;
 
-        public BaseConstraintResult(IConstraint constraint, object actualValue, MatchResult result) 
+        public BaseConstraintResult(IConstraint constraint, object actualValue, IMatchResult result) 
             : base(constraint, actualValue, result.Matches ? ConstraintStatus.Success : ConstraintStatus.Failure)
         {
             this.result = result;
         }
 
+        public override void WriteMessageTo(MessageWriter writer) => result.WriteTo(writer);
 
-        public override void WriteMessageTo(MessageWriter writer)
-        {
-            writer.WriteValue(result.ExpectedMessage);
-            writer.WriteActualValue(result.ActualMessage);
+        public override void WriteAdditionalLinesTo(MessageWriter writer) => throw new NotImplementedException();
 
-            //base.WriteMessageTo(writer);
-        }
-
-        public override void WriteAdditionalLinesTo(MessageWriter writer)
-        {
-            base.WriteAdditionalLinesTo(writer);
-        }
-
-        public override void WriteActualValueTo(MessageWriter writer)
-        {
-            base.WriteActualValueTo(writer);
-        }
+        public override void WriteActualValueTo(MessageWriter writer) => throw new NotImplementedException();
 
         public override string ToString()
         {

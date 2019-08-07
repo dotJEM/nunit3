@@ -13,18 +13,18 @@ namespace DotJEM.NUnit3.Constraints
             this.expected = expected?.Cast<object>().ToList();
         }
 
-        protected override MatchResult Matches<T>(T actual)
+        protected override IMatchResult Matches<T>(T actual)
         {
             if (ReferenceEquals(actual, expected))
                 return MatchResult.Success();
 
             //Note: If actual is null and we have passed the first if, we know that expected is not null.
             if (actual == null)
-                return MatchResult.Fail($"IEnumerable with {expected.Count()} elements.", "<null>");
+                return MatchResult.Fail($"IEnumerable with {expected.Count} elements.", "<null>");
 
             IEnumerable<object> actualEnumerable = (actual as IEnumerable)?.Cast<object>().ToList();
             if(actualEnumerable == null)
-                return MatchResult.Fail($"IEnumerable with {expected.Count()} elements.", $"type of {actual.GetType()} which is not an IEnumerable.");
+                return MatchResult.Fail($"IEnumerable with {expected.Count} elements.", $"type of '{actual.GetType()}' which is not an IEnumerable.");
 
             //Note: If expected is null and we have passed the first if, we know that actual is not null.
             if (expected == null)
@@ -43,9 +43,11 @@ namespace DotJEM.NUnit3.Constraints
                 if (Has.Properties.EqualTo(expectedItem).ApplyTo(actualItem).IsSuccess)
                     continue;
 
-                return MatchResult.Fail($"Element at [{i}] should be: \"{expectedItem}\"", actualItem.ToString());
+                return MatchResult.Fail(
+                    expectedMessage: $"element at [{i}] to be: {expectedItem}", 
+                    actualMessage: $"{actualItem}");
             }
-            return true;
+            return MatchResult.Success();
         }
     }
 }

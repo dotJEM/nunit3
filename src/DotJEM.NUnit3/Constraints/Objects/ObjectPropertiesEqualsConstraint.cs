@@ -1,11 +1,13 @@
 ﻿using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
 using DotJEM.NUnit3.Util;
 using NUnit.Framework.Constraints;
+using NUnit.Framework.Internal;
 
 namespace DotJEM.NUnit3.Constraints
 {
@@ -84,8 +86,6 @@ namespace DotJEM.NUnit3.Constraints
             SetupProperty(property.GetPropertyInfo(), constraintFactory);
         }
 
-
-
         private void SetupProperty(PropertyInfo property, Constraint constraint)
         {
             propertyMap[property.Name] = new Property { Info = property, Constraint = constraint };
@@ -117,33 +117,35 @@ namespace DotJEM.NUnit3.Constraints
         }
 
 
-        protected override MatchResult Matches<T1>(T1 actual)
+        protected override IMatchResult Matches<T1>(T1 actual)
         {
             if (ExplicitTypesFlag && ReferenceEquals(actual.GetType(), Expected.GetType()) == false)
                 return MatchResult.Fail($"was of type {Expected.GetType()} (ExplicitTypesFlag was set)", $"was of type {actual.GetType()}");
 
-            bool matches = true;
             if (primitive != null)
-                return primitive.ApplyTo(actual).IsSuccess;
+                return new ConstraintResultMatchResult(primitive.ApplyTo(actual));
 
+            PropertiesMatchResult result =  new PropertiesMatchResult();
             foreach (Property property in propertyMap.Values)
             {
                 try
                 {
                     property.Actual = property.Info.GetValue(actual, null);
                     property.Expected = property.Info.GetValue(Expected, null);
-                    if (!property.Apply().IsSuccess)
-                        matches = false;
+                    ConstraintResult pr = property.Apply();
+                    if (!pr.IsSuccess)
+                        result.Failure(property.Info, new ConstraintResultMatchResult(pr));
                 }
                 catch (TargetException)
                 {
-                    return MatchResult.Fail(
+                    result.Failure(property.Info, MatchResult.Fail(
                         expectedMessage: $"[{Expected.GetType().Name}] contained the property '{property.Info.Name}'.",
                         actualMessage: $"[{actual.GetType().Name}] did not."
-                        );
+                    ));
                 }
             }
-            return matches;
+
+            return result;
         }
 
         protected class Property
@@ -216,6 +218,54 @@ namespace DotJEM.NUnit3.Constraints
             {
                 parrent.SetupConstraint(property, constraint);
             }
+        }
+    }
+
+    public class ConstraintResultMatchResult : IMatchResult
+    {
+        private readonly ConstraintResult constraintResult;
+
+        public bool Matches => constraintResult.IsSuccess;
+
+        public ConstraintResultMatchResult(ConstraintResult constraintResult)
+        {
+            this.constraintResult = constraintResult;
+        }
+
+        public void WriteTo(MessageWriter writer) => constraintResult.WriteMessageTo(writer);
+    }
+
+    public class PropertiesMatchResult : IMatchResult
+    {
+        private readonly List<(PropertyInfo, IMatchResult)> failures = new List<(PropertyInfo, IMatchResult)>();
+
+        public bool Matches => !failures.Any();
+
+        public void WriteTo(MessageWriter writer)
+        {
+            writer.WriteLine("Properties of the object did not match.");
+            using (MessageWriter w = new TextMessageWriter())
+            {
+                foreach ((PropertyInfo property, IMatchResult result) in failures)
+                {
+                    w.WriteLine($"The property '{property.Name} <{property.PropertyType}>' was not equals.");
+                    result.WriteTo(w);
+                    w.WriteLine();
+                }
+
+                using (StringReader reader = new StringReader(w.ToString()))
+                {
+                    string line;
+                    while ((line = reader.ReadLine()) != null)
+                        writer.WriteLine($"  {line}");
+                }
+            }
+
+        }
+
+        public void Failure(PropertyInfo property, IMatchResult pr)
+        {
+            failures.Add((property, pr));
         }
     }
 }

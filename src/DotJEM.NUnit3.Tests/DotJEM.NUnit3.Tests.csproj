@@ -47,7 +47,8 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="Constraints\EnumerableEqualsConstraintTest.cs" />
+    <Compile Include="Constraints\Collections\EnumerableEqualsConstraintTest.cs" />
+    <Compile Include="Constraints\Objects\ObjectPropertiesEqualsConstraintTest.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>
