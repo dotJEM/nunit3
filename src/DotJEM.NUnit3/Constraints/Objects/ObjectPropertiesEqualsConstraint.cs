@@ -9,15 +9,20 @@ using DotJEM.NUnit3.Util;
 using NUnit.Framework.Constraints;
 using NUnit.Framework.Internal;
 
-namespace DotJEM.NUnit3.Constraints
+namespace DotJEM.NUnit3.Constraints.Objects
 {
-    public class ObjectPropertiesEqualsConstraint<T> : BaseConstraint
+    public interface IObjectPropertiesEqualsConstraint
+    {
+        bool ExplicitTypesFlag { get; set; }
+    }
+
+    public class ObjectPropertiesEqualsConstraint<T> : BaseConstraint, IObjectPropertiesEqualsConstraint
     {
         protected Constraint primitive;
         protected readonly Dictionary<string, Property> propertyMap = new Dictionary<string, Property>();
 
         protected T Expected { get; }
-        protected bool ExplicitTypesFlag { get; set; }
+        public bool ExplicitTypesFlag { get; set; }
 
         private readonly HashSet<object> references = new HashSet<object>(/*new ReferenceComparer()*/);
 
@@ -146,6 +151,48 @@ namespace DotJEM.NUnit3.Constraints
             }
 
             return result;
+        }
+
+        /// <summary>
+        /// Ignores the specified properties from the comparison of two objects.
+        /// </summary>
+        /// <param name="properties">The properties to ignore.</param>
+        public ObjectPropertiesEqualsConstraint<T> Ignore(params Expression<Func<T, object>>[] properties)
+        {
+            foreach (PropertyInfo info in properties.Select(ReflectionExtensions.GetPropertyInfo))
+                propertyMap.Remove(info.Name);
+            return this;
+        }
+
+
+        /// <summary>
+        /// Uses the specified Constraint to compare the specified property or properties.
+        /// </summary>
+        public ObjectPropertiesEqualsConstraint<T> CheckTypes()
+        {
+            ExplicitTypesFlag = true;
+            foreach (Property property in propertyMap.Values)
+            {
+                if (property.Constraint is IObjectPropertiesEqualsConstraint objectPropertiesEqualsConstraint)
+                    objectPropertiesEqualsConstraint.ExplicitTypesFlag = true;
+            }
+            return this;
+        }
+
+        /// <summary>
+        /// Gets a Modifyer that provides the ability to modify the comparison for all properties.
+        /// </summary>
+        public ObjectPropertyEqualsModifyer<object> ForAll
+        {
+            get { return new ObjectPropertyEqualsModifyer<object>(this, propertyMap.Values.Select(f => f.Info).ToArray()); }
+        }
+
+        /// <summary>
+        /// Modifies a single property using the returned modifyer.
+        /// </summary>
+        public ObjectPropertyEqualsModifyer<TProperty> For<TProperty>(params Expression<Func<T, TProperty>>[] properties)
+        {
+            return new ObjectPropertyEqualsModifyer<TProperty>(this, properties.Select(ReflectionExtensions.GetPropertyInfo).ToArray());
         }
 
         protected class Property

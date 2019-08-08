@@ -1,5 +1,6 @@
 ﻿using System.Collections.Generic;
 using System.Reflection;
+using DotJEM.NUnit3.Constraints.Objects;
 using NUnit.Framework.Constraints;
 
 namespace DotJEM.NUnit3.Constraints

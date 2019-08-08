@@ -1,4 +1,6 @@
-﻿namespace DotJEM.NUnit3.Constraints
+﻿using DotJEM.NUnit3.Constraints.Objects;
+
+namespace DotJEM.NUnit3.Constraints
 {
     public interface IPropertiesConstraintsFactory
     {

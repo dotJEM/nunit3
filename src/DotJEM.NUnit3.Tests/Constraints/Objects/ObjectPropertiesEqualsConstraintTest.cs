@@ -42,4 +42,44 @@ namespace DotJEM.NUnit3.Tests.Constraints.Objects
             Assert.That(new { Test = "243", Age = 42 }, Has.Properties.EqualTo(new { Test = "222", Age = 46, Missing = true }));
         }
     }
+
+    public class ObjectPropertiesNotEqualsConstraintTest
+    {
+        [Test]
+        public void ApplyTo_SinglePropertyNotEqual_Passes()
+        {
+            var constraint = Has.Properties.NotEqualTo(new { Test = "243" });
+            ConstraintResult result = constraint.ApplyTo(new { Test = "244" });
+            Assert.That(result, Has.Property<ConstraintResult>(r => r.IsSuccess).True, result.ToString());
+        }
+
+        [Test]
+        public void ApplyTo_MultiplePropertiesOneNotEqual_Passes()
+        {
+            var constraint = Has.Properties.NotEqualTo(new { Test = "243", Age = 42 });
+            ConstraintResult result = constraint.ApplyTo(new { Test = "244", Age = 42 });
+            Assert.That(result, Has.Property<ConstraintResult>(r => r.IsSuccess).True, result.ToString());
+        }
+
+        [Test]
+        public void ApplyTo_MultiplePropertiesOneNotEqualStrict_Fails()
+        {
+            var constraint = Has.Properties.NotEqualTo(new { Test = "243", Age = 42 }).Strict();
+            ConstraintResult result = constraint.ApplyTo(new { Test = "244", Age = 42 });
+            Assert.That(result, Has.Property<ConstraintResult>(r => r.IsSuccess).False, result.ToString());
+        }
+
+
+        [Test, Explicit("This test-case is meant to fail to verify how the error message is displayed in NUnit runners, e.g. ReSharpers runner")]
+        public void Test_InRunnerDisplay()
+        {
+            Assert.That(new { Test = "243", Age = 42 }, Has.Properties.NotEqualTo(new { Test = "243", Age = 42 }));
+        }
+
+        [Test, Explicit("This test-case is meant to fail to verify how the error message is displayed in NUnit runners, e.g. ReSharpers runner")]
+        public void Test_InRunnerDisplay2()
+        {
+            Assert.That(new { Test = "243", Age = 42 }, Has.Properties.NotEqualTo(new { Test = "243", Age = 43 }).Strict());
+        }
+    }
 }
