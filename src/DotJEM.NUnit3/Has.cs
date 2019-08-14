@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Linq.Expressions;
 using DotJEM.NUnit3.Constraints;
+using DotJEM.NUnit3.Constraints.Objects;
 using DotJEM.NUnit3.Util;
 using NUnit.Framework.Constraints;
 

@@ -1,6 +1,7 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
+using DotJEM.NUnit3.Constraints.Objects;
 
 namespace DotJEM.NUnit3.Constraints
 {

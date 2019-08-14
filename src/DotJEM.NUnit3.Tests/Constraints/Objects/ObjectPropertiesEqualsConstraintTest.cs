@@ -4,6 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using DotJEM.NUnit3.Constraints;
+using DotJEM.NUnit3.Constraints.Objects;
 using NUnit.Framework;
 using NUnit.Framework.Constraints;
 

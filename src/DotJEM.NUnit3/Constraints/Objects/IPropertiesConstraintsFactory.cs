@@ -1,21 +1,22 @@
-﻿using DotJEM.NUnit3.Constraints.Objects;
-
-namespace DotJEM.NUnit3.Constraints
+﻿namespace DotJEM.NUnit3.Constraints.Objects
 {
     public interface IPropertiesConstraintsFactory
     {
-        ObjectPropertiesEqualsConstraint<T> EqualTo<T>(T expected);
-        ObjectPropertiesNotEqualsConstraint<T> NotEqualTo<T>(T expected);
     }
 
+    //NOTE: (jmd 2019-08-14) Just so we don't return null.
     internal class PropertiesConstraintsFactory : IPropertiesConstraintsFactory
     {
-        public ObjectPropertiesEqualsConstraint<T> EqualTo<T>(T expected)
+    }
+
+    public static class PropertiesConstraintsFactoryExtensions
+    {
+        public static ObjectPropertiesEqualsConstraint<T> EqualTo<T>(this IPropertiesConstraintsFactory self, T expected)
         {
             return new ObjectPropertiesEqualsConstraint<T>(expected);
         }
 
-        public ObjectPropertiesNotEqualsConstraint<T> NotEqualTo<T>(T expected)
+        public static ObjectPropertiesNotEqualsConstraint<T> NotEqualTo<T>(this IPropertiesConstraintsFactory self, T expected)
         {
             return new ObjectPropertiesNotEqualsConstraint<T>(expected);
         }

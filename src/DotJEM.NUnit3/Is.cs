@@ -1,11 +1,27 @@
-﻿using NUnit.Framework;
+﻿using DotJEM.NUnit3.Constraints.Json;
+using Newtonsoft.Json.Linq;
+using NUnit.Framework;
+using NUnit.Framework.Constraints;
 
 namespace DotJEM.NUnit3
 {
     public class Is : NUnit.Framework.Is
     {
+        public static IJsonConstraintsFactory Json { get; } = new JsonConstraintsFactory();
+    }
+
+    public static class JsonConstraintsFactoryExtensions
+    {
+        public static JsonEqualsConstraint EqualTo(this IJsonConstraintsFactory self, JToken expected)
+        {
+            return new JsonEqualsConstraint(expected);
+        }
 
     }
+
+    internal class JsonConstraintsFactory : IJsonConstraintsFactory { }
+
+    public interface IJsonConstraintsFactory { }
 
     //public static class Assert
     //{
