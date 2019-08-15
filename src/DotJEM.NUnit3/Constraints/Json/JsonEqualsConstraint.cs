@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
@@ -32,22 +33,22 @@ namespace DotJEM.NUnit3.Constraints.Json
             if (JToken.DeepEquals(actual, expected))
                 return MatchResult.Success();
 
-            return QuickDiff(new JsonEqualsConstraintMatchResult(), actual, expected);
+            return new JsonEqualsConstraintMatchResult(QuickDiff(new JsonSimpleDiff(), actual, expected));
         }
 
-        private JsonEqualsConstraintMatchResult QuickDiff(JsonEqualsConstraintMatchResult result, JToken actual, JToken expected, string path = "")
+        private IJsonSimpleDiff QuickDiff(IJsonSimpleDiff result, JToken actual, JToken expected, string path = "")
         {
             if (actual == null && expected == null)
                 return result;
 
             if (actual == null)
-                return result.Failure(path, "<null>", expected.ToString());
+                return result.Push(path, "<null>", expected.ToString());
 
             if (expected == null)
-                return result.Failure(path, actual.ToString(), "<null>");
+                return result.Push(path, actual.ToString(), "<null>");
 
             if (actual.Type != expected.Type)
-                return result.Failure(path, $"JToken of type '{actual.Type}'", $"JToken of type '{expected.Type}'");
+                return result.Push(path, $"JToken of type '{actual.Type}'", $"JToken of type '{expected.Type}'");
 
             if (expected is JObject obj)
                 return QuickDiffObject(result, obj, (JObject)actual, path);
@@ -56,12 +57,12 @@ namespace DotJEM.NUnit3.Constraints.Json
             //    arrayStrategy.Compare()
 
             if (expected is JValue value && !value.Equals((JValue)actual))
-                return result.Failure(path, actual.ToString(), expected.ToString());
+                return result.Push(path, actual.ToString(), expected.ToString());
 
             return result;
         }
 
-        private JsonEqualsConstraintMatchResult QuickDiffObject(JsonEqualsConstraintMatchResult result, JObject actual, JObject expected, string path = "")
+        private IJsonSimpleDiff QuickDiffObject(IJsonSimpleDiff result, JObject actual, JObject expected, string path = "")
         {
             foreach (string key in UnionKeys(actual, expected))
             {
@@ -91,16 +92,42 @@ namespace DotJEM.NUnit3.Constraints.Json
         }
     }
 
+    public interface IJsonSimpleDiff : IEnumerable<(string, JToken, JToken)>
+    {
+        int Count { get; }
+        IJsonSimpleDiff Push(string path, JToken left, JToken right);
+    }
+
+    public class JsonSimpleDiff : IJsonSimpleDiff
+    {
+        private readonly List<(string path, JToken left, JToken right)> diffs = new List<(string, JToken, JToken)>();
+
+        public int Count => diffs.Count;
+
+        public IJsonSimpleDiff Push(string path, JToken left, JToken right)
+        {
+            diffs.Add((path, left, right));
+            return this;
+        }
+
+        public IEnumerator<(string, JToken, JToken)> GetEnumerator() => diffs.GetEnumerator();
+        IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
+    }
+
     public class JsonEqualsConstraintMatchResult : IMatchResult
     {
-        private readonly List<(string, string, string)> failures = new List<(string, string, string)>();
+        private readonly IJsonSimpleDiff diff;
+        public bool Matches => diff.Count == 0;
 
-        public bool Matches => !failures.Any();
+        public JsonEqualsConstraintMatchResult(IJsonSimpleDiff diff)
+        {
+            this.diff = diff;
+        }
 
         public void WriteTo(MessageWriter writer)
         {
             writer.WriteLine("Properties of the object did not match.");
-            foreach ((string path, string actual, string expected) in failures)
+            foreach ((string path, JToken actual, JToken expected) in diff)
             {
                 writer.WriteLine($"  Value at '{path}' was not equals.");
                 writer.Write("  ");
@@ -112,12 +139,6 @@ namespace DotJEM.NUnit3.Constraints.Json
                 writer.WriteLine(actual);
                 writer.WriteLine();
             }
-        }
-
-        public JsonEqualsConstraintMatchResult Failure(string path, string actual, string expected)
-        {
-            failures.Add(( path,  actual,  expected));
-            return this;
         }
     }
 
