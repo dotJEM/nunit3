@@ -1,10 +1,10 @@
 ﻿using System;
-using System.Collections;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Reflection;
 using System.Text;
+using DotJEM.NUnit3.Constraints.Json.Diff;
 using Newtonsoft.Json.Linq;
 using NUnit.Framework.Constraints;
 using NUnit.Framework.Internal;
@@ -33,10 +33,10 @@ namespace DotJEM.NUnit3.Constraints.Json
             if (JToken.DeepEquals(actual, expected))
                 return MatchResult.Success();
 
-            return new JsonEqualsConstraintMatchResult(QuickDiff(new JsonSimpleDiff(), actual, expected));
+            return new JsonEqualsConstraintMatchResult(Diff(new JsonSimpleDiff(), actual, expected));
         }
 
-        private IJsonSimpleDiff QuickDiff(IJsonSimpleDiff result, JToken actual, JToken expected, string path = "")
+        private IJsonSimpleDiff Diff(IJsonSimpleDiff result, JToken actual, JToken expected, string path = "")
         {
             if (actual == null && expected == null)
                 return result;
@@ -51,10 +51,10 @@ namespace DotJEM.NUnit3.Constraints.Json
                 return result.Push(path, $"JToken of type '{actual.Type}'", $"JToken of type '{expected.Type}'");
 
             if (expected is JObject obj)
-                return QuickDiffObject(result, obj, (JObject)actual, path);
+                return Diff(result, obj, (JObject)actual, path);
 
-            //if (expected is JArray array)
-            //    arrayStrategy.Compare()
+            if (expected is JArray array)
+                return arrayStrategy.Diff(result, (JArray) actual, array, path);
 
             if (expected is JValue value && !value.Equals((JValue)actual))
                 return result.Push(path, actual.ToString(), expected.ToString());
@@ -62,12 +62,12 @@ namespace DotJEM.NUnit3.Constraints.Json
             return result;
         }
 
-        private IJsonSimpleDiff QuickDiffObject(IJsonSimpleDiff result, JObject actual, JObject expected, string path = "")
+        private IJsonSimpleDiff Diff(IJsonSimpleDiff result, JObject actual, JObject expected, string path = "")
         {
             foreach (string key in UnionKeys(actual, expected))
             {
                 string propertyPath = string.IsNullOrEmpty(path) ? key : path + "." + key;
-                QuickDiff(result, actual[key], expected[key], propertyPath);
+                Diff(result, actual[key], expected[key], propertyPath);
             }
             return result;
         }
@@ -87,31 +87,9 @@ namespace DotJEM.NUnit3.Constraints.Json
 
         private JsonEqualsConstraint SetArrayStrategy<TStrategy>() where TStrategy : IJArrayStrategy, new()
         {
-            arrayStrategy = new TStrategy();
+            arrayStrategy = new TStrategy().WithTokenDiffer(Diff);
             return this;
         }
-    }
-
-    public interface IJsonSimpleDiff : IEnumerable<(string, JToken, JToken)>
-    {
-        int Count { get; }
-        IJsonSimpleDiff Push(string path, JToken left, JToken right);
-    }
-
-    public class JsonSimpleDiff : IJsonSimpleDiff
-    {
-        private readonly List<(string path, JToken left, JToken right)> diffs = new List<(string, JToken, JToken)>();
-
-        public int Count => diffs.Count;
-
-        public IJsonSimpleDiff Push(string path, JToken left, JToken right)
-        {
-            diffs.Add((path, left, right));
-            return this;
-        }
-
-        public IEnumerator<(string, JToken, JToken)> GetEnumerator() => diffs.GetEnumerator();
-        IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
     }
 
     public class JsonEqualsConstraintMatchResult : IMatchResult
@@ -160,8 +138,6 @@ namespace DotJEM.NUnit3.Constraints.Json
             JToken actual = actualValue as JToken;
             if (actual == null)
                 return MatchResult.Fail($"a {expected.GetType()}", $"a {actualValue.GetType()}");
-
-
             return MatchResult.Fail($"a {expected.GetType()}", $"a {actualValue.GetType()}");
         }
 
@@ -170,8 +146,6 @@ namespace DotJEM.NUnit3.Constraints.Json
         {
             if (actual == null && expected == null)
                 return;
-
-
         }
 
 
@@ -192,14 +166,48 @@ namespace DotJEM.NUnit3.Constraints.Json
 
     public interface IJArrayStrategy
     {
+        IJsonSimpleDiff Diff(IJsonSimpleDiff result, JArray actual, JArray expected, string path);
+
+        IJArrayStrategy WithTokenDiffer(Func<IJsonSimpleDiff, JToken, JToken, string, IJsonSimpleDiff> tokenDiffer);
 
     }
 
-    public class StrictJArrayStrategy : IJArrayStrategy
+    public abstract class AbstractJArrayStrategy : IJArrayStrategy
     {
+        private Func<IJsonSimpleDiff, JToken, JToken, string, IJsonSimpleDiff> tokenDiffer;
+
+        public abstract IJsonSimpleDiff Diff(IJsonSimpleDiff result, JArray actual, JArray expected, string path);
+
+        protected IJsonSimpleDiff DiffToken(IJsonSimpleDiff result, JToken actual, JToken expected, string path) => tokenDiffer(result, actual, expected, path);
+
+        public IJArrayStrategy WithTokenDiffer(Func<IJsonSimpleDiff, JToken, JToken, string, IJsonSimpleDiff> tokenDiffer)
+        {
+            this.tokenDiffer = tokenDiffer;
+            return this;
+        }
     }
 
-    public class OutOfOrderJArrayStrategy : IJArrayStrategy
+    public class StrictJArrayStrategy : AbstractJArrayStrategy
     {
+        public override IJsonSimpleDiff Diff(IJsonSimpleDiff result, JArray actual, JArray expected, string path)
+        {
+            if (actual.Count != expected.Count)
+            {
+                result.Push(path, $"JArray with {expected.Count} items", $"JArray with {actual.Count} items");
+            }
+
+            for (int i = 0; i < expected.Count; i++)
+                result = DiffToken(result, actual[i], expected[i], path + "[0]");
+            return result;
+        }
+    }
+
+    public class OutOfOrderJArrayStrategy : AbstractJArrayStrategy
+    {
+
+        public override IJsonSimpleDiff Diff(IJsonSimpleDiff result, JArray actual, JArray expected, string path)
+        {
+            throw new NotImplementedException();
+        }
     }
 }
