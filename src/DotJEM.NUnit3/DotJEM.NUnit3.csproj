@@ -2,6 +2,16 @@
 
   <PropertyGroup>
     <TargetFramework>netstandard2.0</TargetFramework>
+    <Version>0.1.0</Version>
+    <AssemblyVersion>0.0.1.0</AssemblyVersion>
+    <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
+    <Copyright>Copyright (c) 2020 dotJEM</Copyright>
+    <PackageLicenseExpression>MIT</PackageLicenseExpression>
+    <FileVersion>0.0.1.0</FileVersion>
+    <PackageProjectUrl>https://github.com/dotJEM/nunit3</PackageProjectUrl>
+    <RepositoryUrl>https://github.com/dotJEM/nunit3</RepositoryUrl>
+    <RepositoryType>GIT</RepositoryType>
+    <PackageTags>nunit3 json constraints object</PackageTags>
   </PropertyGroup>
 
   <ItemGroup>

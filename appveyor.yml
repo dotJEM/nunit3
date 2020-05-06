@@ -1,0 +1,44 @@
+version: 0.1.{build}
+image: Visual Studio 2019
+
+configuration: Release
+
+init:
+- ps: Update-AppveyorBuild -Version "0.0.$env:appveyor_build_number+sha.$($env:appveyor_repo_commit.substring(0,7))"
+
+nuget:
+  disable_publish_on_pr: true
+
+dotnet_csproj:
+  patch: true
+  file: '**\*.csproj'
+  version: '{version}'
+  package_version: '{version}'
+  assembly_version: '0.1.{build}.0'
+  file_version: '0.1.{build}.0'
+  informational_version: '{version}'
+
+matrix:
+  fast_finish: true # fail fast!
+
+clone_depth: 1
+
+pull_requests:
+  do_not_increment_build_number: true
+
+before_build:
+  - cmd: dotnet restore src\DotJEM.NUnit3\DotJEM.NUnit3.csproj # Restores .NET Standard
+  - cmd: nuget restore src\DotJEM.NUnit3.sln # Restores .NET Framework (For Test Project)
+
+build:
+  project: src\DotJEM.NUnit3.sln
+  publish_nuget: true
+  publish_nuget_symbols: true
+
+deploy:
+  provider: NuGet
+  api_key:
+    secure: KEHWtW02rf5aCAlwchP0Siow5EA24hwtm09uvsR58bMWirJ8uXl1SidBnNCfJ3cw
+  skip_symbols: false
+  on:
+    branch: master 

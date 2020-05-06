@@ -7,13 +7,18 @@ namespace DotJEM.NUnit3.Constraints.Json.Diff
 
     public interface IJsonSimpleDiff : IEnumerable<(string, JToken, JToken)>
     {
+        bool Empty { get; }
+
         int Count { get; }
+
         IJsonSimpleDiff Push(string path, JToken left, JToken right);
     }
 
     public class JsonSimpleDiff : IJsonSimpleDiff
     {
         private readonly List<(string path, JToken left, JToken right)> diffs = new List<(string, JToken, JToken)>();
+
+        public bool Empty => Count == 0;
 
         public int Count => diffs.Count;
 
