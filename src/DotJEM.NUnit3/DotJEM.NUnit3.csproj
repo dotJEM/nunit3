@@ -12,6 +12,7 @@
     <RepositoryUrl>https://github.com/dotJEM/nunit3</RepositoryUrl>
     <RepositoryType>GIT</RepositoryType>
     <PackageTags>nunit3 json constraints object</PackageTags>
+    <LangVersion>preview</LangVersion>
   </PropertyGroup>
 
   <ItemGroup>
