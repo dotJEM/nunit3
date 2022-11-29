@@ -1,11 +1,12 @@
 ﻿using DotJEM.NUnit3.Constraints.Json;
 using Newtonsoft.Json.Linq;
-using NUnit.Framework;
+using NUnitIs = NUnit.Framework.Is;
+using NUnitHas = NUnit.Framework.Has;
 using NUnit.Framework.Constraints;
 
 namespace DotJEM.NUnit3
 {
-    public class Is : NUnit.Framework.Is
+    public class Is : NUnitIs
     {
         public static IJsonConstraintsFactory Json { get; } = new JsonConstraintsFactory();
     }

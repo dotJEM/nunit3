@@ -1,5 +1,4 @@
-<Project Sdk="Microsoft.NET.Sdk">
-
+﻿<Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
     <TargetFramework>netstandard2.0</TargetFramework>
     <Version>0.1.0</Version>
@@ -12,11 +11,18 @@
     <RepositoryUrl>https://github.com/dotJEM/nunit3</RepositoryUrl>
     <RepositoryType>GIT</RepositoryType>
     <PackageTags>nunit3 json constraints object</PackageTags>
+    <LangVersion>preview</LangVersion>
   </PropertyGroup>
-
   <ItemGroup>
     <PackageReference Include="Newtonsoft.Json" Version="12.0.2" />
     <PackageReference Include="NUnit" Version="3.12.0" />
   </ItemGroup>
 
+
+	<ItemGroup>
+		<AssemblyAttribute Include="System.Runtime.CompilerServices.InternalsVisibleToAttribute">
+			<_Parameter1>$(AssemblyName).Tests</_Parameter1>
+			<!-- We use the value of AssemblyName to declare the value of the attribute -->
+		</AssemblyAttribute>
+	</ItemGroup>
 </Project>
