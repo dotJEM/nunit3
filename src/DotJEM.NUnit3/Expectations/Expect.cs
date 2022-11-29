@@ -1,10 +1,11 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Text;
+using NUnit.Framework;
 
 namespace DotJEM.NUnit3.Expectations
 {
-    public class Assert : NUnit.Framework.Assert
+    public class XAssert : Assert
     {
         public static void That(params ExpectationBuilder[] expectation)
         {

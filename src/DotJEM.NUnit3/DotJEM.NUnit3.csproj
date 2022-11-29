@@ -17,4 +17,7 @@
     <PackageReference Include="Newtonsoft.Json" Version="12.0.2" />
     <PackageReference Include="NUnit" Version="3.12.0" />
   </ItemGroup>
+  <ItemGroup>
+    <Folder Include="Legacy\Constraints\" />
+  </ItemGroup>
 </Project>

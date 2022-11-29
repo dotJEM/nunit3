@@ -1,10 +1,10 @@
 version: 0.1.{build}
-image: Visual Studio 2019
+image: Visual Studio 2022
 
 configuration: Release
 
 init:
-- ps: Update-AppveyorBuild -Version "0.0.$env:appveyor_build_number+sha.$($env:appveyor_repo_commit.substring(0,7))"
+- ps: Update-AppveyorBuild -Version "0.1.$env:appveyor_build_number+sha.$($env:appveyor_repo_commit.substring(0,7))"
 
 nuget:
   disable_publish_on_pr: true
@@ -27,8 +27,7 @@ pull_requests:
   do_not_increment_build_number: true
 
 before_build:
-  - cmd: dotnet restore src\DotJEM.NUnit3\DotJEM.NUnit3.csproj # Restores .NET Standard
-  - cmd: nuget restore src\DotJEM.NUnit3.sln # Restores .NET Framework (For Test Project)
+  - cmd: dotnet restore src\DotJEM.NUnit3.sln # Restores .NET Framework (For Test Project)
 
 build:
   project: src\DotJEM.NUnit3.sln

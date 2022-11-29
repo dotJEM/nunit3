@@ -8,13 +8,13 @@ using DotJEM.NUnit3.Expectations;
 using NUnit.Framework;
 using NUnit.Framework.Interfaces;
 using NUnit.Framework.Internal;
-using Assert = DotJEM.NUnit3.Expectations.Assert;
+using Assert = DotJEM.NUnit3.Expectations.XAssert;
 
 namespace DotJEM.NUnit3.Tests
 {
     public class Class1
     {
-        [Test]
+        [Test, Explicit]
         public void Fax()
         {
             ReportFailure("ToString()");
