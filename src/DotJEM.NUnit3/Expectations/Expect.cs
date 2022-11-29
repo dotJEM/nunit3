@@ -76,7 +76,7 @@ namespace DotJEM.NUnit3.Expectations
     public static class ExpectationBuilderExtensions {
         public static ExpectationBuilder<T> EqualTo<T>(this ExpectationBuilder<T> self, T other)
         {
-            return self.Capture();
+            return null;//self.Capture();
         }
     }
 
