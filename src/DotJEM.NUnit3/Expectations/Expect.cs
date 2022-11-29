@@ -5,7 +5,7 @@ using NUnit.Framework;
 
 namespace DotJEM.NUnit3.Expectations
 {
-    public class XAssert : Assert
+    internal class XAssert : Assert
     {
         public static void That(params ExpectationBuilder[] expectation)
         {
@@ -13,7 +13,7 @@ namespace DotJEM.NUnit3.Expectations
         }
     }
 
-    public class Expect
+    internal class Expect
     {
         public static ExpectationBuilder<T> That<T>(T value)
         {
@@ -24,24 +24,24 @@ namespace DotJEM.NUnit3.Expectations
     }
 
 
-    public static class StaticImport
+    internal static class StaticImport
     {
         public static ExpectationBuilder<T> Expect<T>(T value)
         {
             return new ExpectationBuilder<T>(value);
         }
     }
-    public interface IExpectation
+    internal interface IExpectation
     {
 
     }
 
-    public abstract class Expectation : IExpectation
+    internal abstract class Expectation : IExpectation
     {
 
     }
 
-    public class AndExpectationBuilder : ExpectationBuilder
+    internal class AndExpectationBuilder : ExpectationBuilder
     {
         private readonly ExpectationBuilder[] expectations;
 
@@ -51,7 +51,7 @@ namespace DotJEM.NUnit3.Expectations
         }
     }
 
-    public class ExpectationBuilder
+    internal class ExpectationBuilder
     {
         public static AndExpectationBuilder operator &(ExpectationBuilder left, ExpectationBuilder right)
         {
@@ -59,14 +59,14 @@ namespace DotJEM.NUnit3.Expectations
         }
     }
 
-    public class ExpectationBuilder<T>: ExpectationBuilder
+    internal class ExpectationBuilder<T>: ExpectationBuilder
     {
         public ExpectationBuilder(T value)
         {
         }
     }
 
-    public static class ObjectExtentions
+    internal static class ObjectExtentions
     {
         public static ExpectationBuilder<T> Is<T>(this T value)
         {
@@ -74,7 +74,7 @@ namespace DotJEM.NUnit3.Expectations
         }
     }
 
-    public static class ExpectationBuilderExtensions {
+    internal static class ExpectationBuilderExtensions {
         public static ExpectationBuilder<T> EqualTo<T>(this ExpectationBuilder<T> self, T other)
         {
             return null;//self.Capture();
