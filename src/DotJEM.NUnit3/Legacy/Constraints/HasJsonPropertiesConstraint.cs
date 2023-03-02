@@ -1,4 +1,5 @@
-﻿using DotJEM.NUnit3.Legacy.Helpers;
+﻿using System;
+using DotJEM.NUnit3.Legacy.Helpers;
 using Newtonsoft.Json.Linq;
 
 namespace DotJEM.NUnit3.Legacy.Constraints
@@ -77,7 +78,8 @@ namespace DotJEM.NUnit3.Legacy.Constraints
                 FailWithMessage("'{0}' was expected to have '{1}' elements but had '{2}'.",
                     propertyPath, expectedArr.Count, actualArr.Count);
 
-            for (int i = 0; i < expectedArr.Count; i++)
+            int len = Math.Min(actualArr.Count, expectedArr.Count);
+            for (int i = 0; i < len; i++)
             {
                 string itemPath = propertyPath + "[" + i + "]";
                 JToken expectedToken = expectedArr[i];
@@ -90,22 +92,19 @@ namespace DotJEM.NUnit3.Legacy.Constraints
                     continue;
                 }
 
-                JObject obj = expectedToken as JObject;
-                if (obj != null)
+                if (expectedToken is JObject obj)
                 {
                     //Note: We compared types above, so we know they should pass for both in this case.
                     CompareJObjects(obj, (JObject)actualToken, itemPath);
                 }
 
-                JArray array = expectedToken as JArray;
-                if (array != null)
+                if (expectedToken is JArray array)
                 {
                     //Note: We compared types above, so we know they should pass for both in this case.
                     CompareJArray(array, (JArray)actualToken, itemPath);
                 }
 
-                JValue value = expectedToken as JValue;
-                if (value != null)
+                if (expectedToken is JValue value)
                 {
                     //Note: We compared types above, so we know they should pass for both in this case.
                     if (!value.Equals((JValue)actualToken))
@@ -115,6 +114,7 @@ namespace DotJEM.NUnit3.Legacy.Constraints
                     }
                 }
             }
+
         }
     }
 }
