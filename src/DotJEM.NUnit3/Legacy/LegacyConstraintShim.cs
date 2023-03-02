@@ -1,4 +1,5 @@
 ﻿using NUnit.Framework.Constraints;
+using NUnit.Framework.Internal;
 using System;
 using System.Collections.Generic;
 using System.Globalization;
@@ -88,6 +89,13 @@ public class NUnit26ConstraintResult : ConstraintResult
     public override void WriteAdditionalLinesTo(MessageWriter writer)
     {
         base.WriteMessageTo(writer);
+    }
+
+    public override string ToString()
+    {
+        MessageWriter writer = new TextMessageWriter();
+        WriteMessageTo(writer);
+        return writer.ToString();
     }
 }
 

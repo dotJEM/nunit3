@@ -45,22 +45,19 @@ namespace DotJEM.NUnit3.Legacy.Constraints
                     continue;
                 }
 
-                JObject obj = expectedProperty.Value as JObject;
-                if (obj != null)
+                if (expectedProperty.Value is JObject obj)
                 {
                     //Note: We compared types above, so we know they should pass for both in this case.
                     CompareJObjects(obj, (JObject)actualProperty.Value, propertyPath);
                 }
 
-                JArray array = expectedProperty.Value as JArray;
-                if (array != null)
+                if (expectedProperty.Value is JArray array)
                 {
                     //Note: We compared types above, so we know they should pass for both in this case.
                     CompareJArray(array, (JArray)actualProperty.Value, propertyPath);
                 }
 
-                JValue value = expectedProperty.Value as JValue;
-                if (value != null)
+                if (expectedProperty.Value is JValue value)
                 {
                     //Note: We compared types above, so we know they should pass for both in this case.
                     if (!value.Equals((JValue)actualProperty.Value))

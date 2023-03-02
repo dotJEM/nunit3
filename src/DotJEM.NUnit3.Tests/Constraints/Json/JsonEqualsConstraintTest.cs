@@ -11,7 +11,7 @@ using NUnit.Framework.Constraints;
 
 namespace DotJEM.NUnit3.Tests.Constraints.Json
 {
-    public class JsonEqualsConstraintTest
+    public class HasJsonPropertiesConstraint
     {
         [Test]
         public void ApplyTo_EquivalentJObjects_Passes()
