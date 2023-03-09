@@ -1,4 +1,5 @@
-﻿using DotJEM.NUnit3.Legacy.Constraints;
+﻿using System;
+using DotJEM.NUnit3.Legacy.Constraints;
 using Newtonsoft.Json.Linq;
 using NUnit.Framework;
 using NUnit.Framework.Constraints;
@@ -14,20 +15,20 @@ namespace DotJEM.NUnit3.Tests.Legacy.Constraints
             ConstraintResult result = constraint.ApplyTo(JObject.FromObject(new { Name = "FOO" }));
             Assert.That(result, Has.Property<ConstraintResult>(r => r.IsSuccess).True, result.ToString());
         }
-        
+
         [Test]
         public void ApplyTo_MissingProperty_Passes()
         {
             HasJsonPropertiesConstraint constraint = new HasJsonPropertiesConstraint(JObject.FromObject(new { Name = "FOO" }));
-            ConstraintResult result = constraint.ApplyTo(JObject.FromObject(new {  }));
+            ConstraintResult result = constraint.ApplyTo(JObject.FromObject(new { }));
             Assert.That(result, Has.Property<ConstraintResult>(r => r.IsSuccess).False, result.ToString());
         }
-     
+
         [Test]
         public void ApplyTo_DifferentJArrays_Fails()
         {
-            JObject expected = JObject.FromObject(new { Arr = new [] { "ONE", "TWO", "THREE", "FOUR" }  });
-            JObject actual = JObject.FromObject(new { Arr = new [] {"ONE", "TWO", "FOUR", "FIVE"}  });
+            JObject expected = JObject.FromObject(new { Arr = new[] { "ONE", "TWO", "THREE", "FOUR" } });
+            JObject actual = JObject.FromObject(new { Arr = new[] { "ONE", "TWO", "FOUR", "FIVE" } });
 
             HasJsonPropertiesConstraint constraint = new HasJsonPropertiesConstraint(expected);
             ConstraintResult result = constraint.ApplyTo(actual);
@@ -40,6 +41,27 @@ namespace DotJEM.NUnit3.Tests.Legacy.Constraints
                                                       "\r\n  'Arr[3]' was expected to be 'FOUR' but was 'FIVE'." +
                                                       "\r\n"));
         }
+
+        
+        [Test]
+        public void ApplyTo_DifferentObjects_Fails()
+        {
+            JObject expected = JObject.Parse("{ arr1: [], arr2: [] }");
+            JObject actual = JObject.Parse("{ arr1: [{ code: '42', exp: '42e' }] }");
+
+            HasJsonPropertiesConstraint constraint = new HasJsonPropertiesConstraint(expected);
+            ConstraintResult result = constraint.ApplyTo(actual);
+            Assert.That(result, Has.Property<ConstraintResult>(r => r.IsSuccess).False, result.ToString());
+
+            string str = result.ToString();
+            
+            Assert.That(result.ToString(), Is.EqualTo("  DotJEM.NUnit3.Legacy.Constraints.HasJsonPropertiesConstraint Failed!" +
+                                                      "\r\n  'arr1' was expected to have '0' elements but had '1'." +
+                                                      "\r\n  Actual object did not contain a property named 'arr2'" +
+                                                      "\r\n"));
+        } 
+        
+      
 
         [Test]
         public void ApplyTo_DeepObjects_Fails()
@@ -98,7 +120,7 @@ namespace DotJEM.NUnit3.Tests.Legacy.Constraints
         }
 
         [Test]
-          public void ApplyTo_DeepObjects2_Fails()
+        public void ApplyTo_DeepObjects2_Fails()
         {
             JObject expected = JObject.Parse("{" +
                                              "  val: {" +

@@ -5,6 +5,7 @@ using System.Runtime.Remoting.Messaging;
 using System.Text;
 using System.Threading.Tasks;
 using DotJEM.NUnit3.Expectations;
+using Newtonsoft.Json.Linq;
 using NUnit.Framework;
 using NUnit.Framework.Interfaces;
 using NUnit.Framework.Internal;
@@ -14,6 +15,17 @@ namespace DotJEM.NUnit3.Tests
 {
     public class Class1
     {
+        [Test, Explicit]
+        public void Obj()
+        {
+            Assert.That(new JObject(), Is.Json.Matching(
+             new {
+                 Name = "name",
+                 SurName = Is.EqualTo("Foo")
+             }
+                ));
+        }
+
         [Test, Explicit]
         public void Fax()
         {

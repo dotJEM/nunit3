@@ -11,6 +11,7 @@ namespace DotJEM.NUnit3
         public static IJsonConstraintsFactory Json { get; } = new JsonConstraintsFactory();
     }
 
+
     public static class JsonConstraintsFactoryExtensions
     {
         public static JsonEqualsConstraint EqualTo(this IJsonConstraintsFactory self, JToken expected)
@@ -18,6 +19,11 @@ namespace DotJEM.NUnit3
             return new JsonEqualsConstraint(expected);
         }
 
+        public static JsonEqualsConstraint Matching(this IJsonConstraintsFactory self, dynamic matchers)
+        {
+
+            return null;
+        }
     }
 
     internal class JsonConstraintsFactory : IJsonConstraintsFactory { }

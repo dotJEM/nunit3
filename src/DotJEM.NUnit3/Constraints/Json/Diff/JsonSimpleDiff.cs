@@ -4,6 +4,11 @@ using Newtonsoft.Json.Linq;
 
 namespace DotJEM.NUnit3.Constraints.Json.Diff
 {
+    public interface IJsonComparer : IComparer<JToken>
+    {
+
+    }
+
 
     public interface IJsonSimpleDiff : IEnumerable<(string, JToken, JToken)>
     {
@@ -16,7 +21,7 @@ namespace DotJEM.NUnit3.Constraints.Json.Diff
 
     public class JsonSimpleDiff : IJsonSimpleDiff
     {
-        private readonly List<(string path, JToken left, JToken right)> diffs = new List<(string, JToken, JToken)>();
+        private readonly List<(string path, JToken left, JToken right)> diffs = new();
 
         public bool Empty => Count == 0;
 
