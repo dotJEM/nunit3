@@ -4,6 +4,21 @@ using Newtonsoft.Json.Linq;
 
 namespace DotJEM.NUnit3.Constraints.Json.Diff
 {
+    
+
+    //public interface IDiffComparer<in T> : IComparer<T>
+    //{
+    //    public int Compare(T left, T right, T origin);
+    //}
+
+    //public class DiffComparer<T> : IDiffComparer<T>
+    //{
+    //    public int Compare(T x, T y)
+    //    {
+    //        throw new System.NotImplementedException();
+    //    }
+    //}
+
 
     public interface IJsonSimpleDiff : IEnumerable<(string, JToken, JToken)>
     {

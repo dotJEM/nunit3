@@ -5,7 +5,7 @@ VisualStudioVersion = 17.4.33110.190
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "DotJEM.NUnit3", "DotJEM.NUnit3\DotJEM.NUnit3.csproj", "{D272495B-7ED5-42E6-9D4E-B146470A73BB}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DotJEM.NUnit3.Tests", "DotJEM.NUnit3.Tests\DotJEM.NUnit3.Tests.csproj", "{08525CF7-9F2B-48AC-8FD3-6EA2D11F895C}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "DotJEM.NUnit3.Tests", "DotJEM.NUnit3.Tests\DotJEM.NUnit3.Tests.csproj", "{08525CF7-9F2B-48AC-8FD3-6EA2D11F895C}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{DCCDAC54-7886-4479-8A3B-60F78E6DACFD}"
 	ProjectSection(SolutionItems) = preProject
@@ -14,6 +14,10 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution 
 		..\LICENSE = ..\LICENSE
 		..\README.md = ..\README.md
 	EndProjectSection
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DotJEM.NUnit3.Experimental", "DotJEM.NUnit3.Experimental\DotJEM.NUnit3.Experimental.csproj", "{9E379E2D-9ABF-4770-B7FC-51BFBD9B84A0}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DotJEM.NUnit3.Experimental.Test", "DotJEM.NUnit3.Experimental.Test\DotJEM.NUnit3.Experimental.Test.csproj", "{CDBC7426-3CFF-4065-A639-0F460ED8B224}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -29,6 +33,14 @@ Global
 		{08525CF7-9F2B-48AC-8FD3-6EA2D11F895C}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{08525CF7-9F2B-48AC-8FD3-6EA2D11F895C}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{08525CF7-9F2B-48AC-8FD3-6EA2D11F895C}.Release|Any CPU.Build.0 = Release|Any CPU
+		{9E379E2D-9ABF-4770-B7FC-51BFBD9B84A0}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{9E379E2D-9ABF-4770-B7FC-51BFBD9B84A0}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{9E379E2D-9ABF-4770-B7FC-51BFBD9B84A0}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{9E379E2D-9ABF-4770-B7FC-51BFBD9B84A0}.Release|Any CPU.Build.0 = Release|Any CPU
+		{CDBC7426-3CFF-4065-A639-0F460ED8B224}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{CDBC7426-3CFF-4065-A639-0F460ED8B224}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{CDBC7426-3CFF-4065-A639-0F460ED8B224}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{CDBC7426-3CFF-4065-A639-0F460ED8B224}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
