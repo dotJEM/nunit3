@@ -39,7 +39,7 @@ namespace DotJEM.NUnit3.Constraints
                 object actualItem = actualEnumerable[i];
                 object expectedItem = expectedItems[i];
                 ConstraintResult cr = Has.Properties.EqualTo(expectedItem).ApplyTo(actualItem);
-                if (Has.Properties.EqualTo(expectedItem).ApplyTo(actualItem).IsSuccess)
+                if (cr.IsSuccess)
                     continue;
 
                 result.Failure(i, new ConstraintResultMatchResult(cr));

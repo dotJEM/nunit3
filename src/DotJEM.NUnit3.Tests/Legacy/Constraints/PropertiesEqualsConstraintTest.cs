@@ -28,6 +28,12 @@ namespace DotJEM.NUnit3.Tests.Legacy.Constraints
         }
 
         [Test, Explicit("Designed to fail")]
+        public void Test0()
+        {
+            Assert.That(new Point(1,1), ObjectHas.Properties.EqualTo(new Point(2, 2)));
+        }
+
+        [Test, Explicit("Designed to fail")]
         public void Test2()
         {
             Polygon square1 = new Polygon("Square", new Point[] { new Point(1, 1), new Point(1, 2), new Point(2, 2), new Point(2, 1) });

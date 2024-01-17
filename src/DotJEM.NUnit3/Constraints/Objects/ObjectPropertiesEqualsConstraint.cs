@@ -66,8 +66,14 @@ namespace DotJEM.NUnit3.Constraints.Objects
                 if (references.Contains(expectedObject))
                     continue;
 
-                references.Add(expectedObject);
-                SetupProperty(property, property.GetValue(Expected, null));
+                //TODO: This is to work around recursion, but this is actually problematic when we only look on the expected
+                //      side of things as that can lead to skipping objects, so we need a better way.
+                Type typeOfExpectedObject = expectedObject.GetType();
+                if (!typeOfExpectedObject.IsPrimitive && typeOfExpectedObject != typeof(string)) {
+                    references.Add(expectedObject);
+                }
+
+                SetupProperty(property, expectedObject);
             }
         }
 
@@ -313,23 +319,20 @@ namespace DotJEM.NUnit3.Constraints.Objects
         public void WriteTo(MessageWriter writer)
         {
             writer.WriteLine("Properties of the object did not match.");
-            using (MessageWriter w = new TextMessageWriter())
+            using MessageWriter w = new TextMessageWriter();
+            foreach ((PropertyInfo property, IMatchResult result) in failures)
             {
-                foreach ((PropertyInfo property, IMatchResult result) in failures)
-                {
-                    w.WriteLine($"The property '{property.Name} <{property.PropertyType}>' was not equals.");
-                    result.WriteTo(w);
-                    w.WriteLine();
-                }
-
-                using (StringReader reader = new StringReader(w.ToString()))
-                {
-                    string line;
-                    while ((line = reader.ReadLine()) != null)
-                        writer.WriteLine($"  {line}");
-                }
+                w.WriteLine($"The property '{property.Name} <{property.PropertyType}>' was not equals.");
+                result.WriteTo(w);
+                w.WriteLine();
             }
 
+            using (StringReader reader = new StringReader(w.ToString()))
+            {
+                string line;
+                while ((line = reader.ReadLine()) != null)
+                    writer.WriteLine($"  {line}");
+            }
         }
 
         public void Failure(PropertyInfo property, IMatchResult pr)
