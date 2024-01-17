@@ -44,6 +44,7 @@ namespace DotJEM.NUnit3.Constraints.Objects
             InitializeProperties();
             // ReSharper restore DoNotCallOverridableMethodsInConstructor
         }
+
         protected virtual void InitializeProperties()
         {
             if (ReferenceEquals(Expected, null))
@@ -72,7 +73,7 @@ namespace DotJEM.NUnit3.Constraints.Objects
 
         protected virtual Constraint SetupPrimitive(object expected)
         {
-            return Is.EqualTo(expected);
+            return NUnit.Framework.Is.EqualTo(expected);
         }
 
         protected void SetupProperty(Expression<Func<T, object>> property)
@@ -101,7 +102,7 @@ namespace DotJEM.NUnit3.Constraints.Objects
             Type type = property.PropertyType;
             if (type.IsPrimitive || type == typeof(string) || type.IsEnum)
             {
-                SetupProperty(property, Is.EqualTo(expected));
+                SetupProperty(property, NUnit.Framework.Is.EqualTo(expected));
             }
             else if (type.IsArray || typeof(IEnumerable).IsAssignableFrom(type))
             {
@@ -182,17 +183,17 @@ namespace DotJEM.NUnit3.Constraints.Objects
         /// <summary>
         /// Gets a Modifyer that provides the ability to modify the comparison for all properties.
         /// </summary>
-        public ObjectPropertyEqualsModifyer<object> ForAll
+        public ObjectPropertyEqualsModifier<object> ForAll
         {
-            get { return new ObjectPropertyEqualsModifyer<object>(this, propertyMap.Values.Select(f => f.Info).ToArray()); }
+            get { return new ObjectPropertyEqualsModifier<object>(this, propertyMap.Values.Select(f => f.Info).ToArray()); }
         }
 
         /// <summary>
         /// Modifies a single property using the returned modifyer.
         /// </summary>
-        public ObjectPropertyEqualsModifyer<TProperty> For<TProperty>(params Expression<Func<T, TProperty>>[] properties)
+        public ObjectPropertyEqualsModifier<TProperty> For<TProperty>(params Expression<Func<T, TProperty>>[] properties)
         {
-            return new ObjectPropertyEqualsModifyer<TProperty>(this, properties.Select(ReflectionExtensions.GetPropertyInfo).ToArray());
+            return new ObjectPropertyEqualsModifier<TProperty>(this, properties.Select(ReflectionExtensions.GetPropertyInfo).ToArray());
         }
 
         protected class Property
@@ -208,12 +209,12 @@ namespace DotJEM.NUnit3.Constraints.Objects
             }
         }
 
-        public class ObjectPropertyEqualsModifyer<TProperty>
+        public class ObjectPropertyEqualsModifier<TProperty>
         {
             private readonly PropertyInfo[] properties;
             private readonly ObjectPropertiesEqualsConstraint<T> parrent;
 
-            internal ObjectPropertyEqualsModifyer(ObjectPropertiesEqualsConstraint<T> parrent, PropertyInfo[] properties)
+            internal ObjectPropertyEqualsModifier(ObjectPropertiesEqualsConstraint<T> parrent, PropertyInfo[] properties)
             {
                 this.properties = properties;
                 this.parrent = parrent;
@@ -268,18 +269,39 @@ namespace DotJEM.NUnit3.Constraints.Objects
         }
     }
 
-    public class ConstraintResultMatchResult : IMatchResult
+    public class ConstraintResultMatchResult(ConstraintResult constraintResult) : IMatchResult
     {
-        private readonly ConstraintResult constraintResult;
-
         public bool Matches => constraintResult.IsSuccess;
 
-        public ConstraintResultMatchResult(ConstraintResult constraintResult)
+        public void WriteTo(MessageWriter writer) => constraintResult.WriteMessageTo(writer);
+    }
+
+    public class CollectionMatchResult : IMatchResult
+    {
+        private readonly List<(int, IMatchResult)> failures = new List<(int, IMatchResult)>();
+
+        public bool Matches => !failures.Any();
+
+        public void WriteTo(MessageWriter writer)
         {
-            this.constraintResult = constraintResult;
+            writer.WriteLine("Collections did not match.");
+            using MessageWriter w = new TextMessageWriter();
+            foreach ((int i, IMatchResult result) in failures)
+            {
+                w.WriteLine($"Element at [{i}]:");
+                result.WriteTo(w);
+                w.WriteLine();
+            }
+
+            using StringReader reader = new StringReader(w.ToString());
+            while (reader.ReadLine() is { } line)
+                writer.WriteLine($"  {line}");
         }
 
-        public void WriteTo(MessageWriter writer) => constraintResult.WriteMessageTo(writer);
+        public void Failure(int index, IMatchResult pr)
+        {
+            failures.Add((index, pr));
+        }
     }
 
     public class PropertiesMatchResult : IMatchResult

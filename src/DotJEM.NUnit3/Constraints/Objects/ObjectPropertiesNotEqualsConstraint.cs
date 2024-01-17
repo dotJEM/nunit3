@@ -9,7 +9,6 @@ namespace DotJEM.NUnit3.Constraints
     {
         private bool strict;
 
-
         public ObjectPropertiesNotEqualsConstraint(T expected) : base(expected)
         {
         }
