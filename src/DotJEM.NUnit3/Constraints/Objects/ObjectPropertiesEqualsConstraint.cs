@@ -66,8 +66,18 @@ namespace DotJEM.NUnit3.Constraints.Objects
                 if (references.Contains(expectedObject))
                     continue;
 
+                if (ReferenceEquals(expectedObject, null)) {
+                    SetupProperty(property, expectedObject);
+                    continue;
+                }
+
                 //TODO: This is to work around recursion, but this is actually problematic when we only look on the expected
                 //      side of things as that can lead to skipping objects, so we need a better way.
+                //      what we could do, is as soon as we hit a referene we have seen before, we make a constraint that requires
+                //      a reference equal check to the previously seen object, this will be a bit cumbersome as we need to store 
+                //      allot of information so that we know when doing the actual assertion, that for some properties, we need
+                //      them so we can go back with a reference equals later.
+
                 Type typeOfExpectedObject = expectedObject.GetType();
                 if (!typeOfExpectedObject.IsPrimitive && typeOfExpectedObject != typeof(string)) {
                     references.Add(expectedObject);
