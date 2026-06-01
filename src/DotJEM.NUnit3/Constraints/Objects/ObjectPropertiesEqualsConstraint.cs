@@ -24,7 +24,7 @@ namespace DotJEM.NUnit3.Constraints.Objects
         protected T Expected { get; }
         public bool ExplicitTypesFlag { get; set; }
 
-        private readonly HashSet<object> references = new HashSet<object>(/*new ReferenceComparer()*/);
+        private readonly HashSet<object> references = new HashSet<object>(new ReferenceComparer());
 
         public ObjectPropertiesEqualsConstraint(T expected)
         {
