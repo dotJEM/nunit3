@@ -67,9 +67,10 @@ namespace DotJEM.NUnit3.Constraints.Objects
                 {
                     expectedObject = property.GetValue(Expected, null);
                 }
-                catch (Exception)
+                catch (TargetInvocationException)
                 {
-                    // Skip properties that cannot be read (e.g. throw InvalidOperationException for certain states)
+                    // Skip properties whose getter throws (e.g. Type.GenericParameterAttributes
+                    // throws InvalidOperationException for non-generic types)
                     continue;
                 }
 
