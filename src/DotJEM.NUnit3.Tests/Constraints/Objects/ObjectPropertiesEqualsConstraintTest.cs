@@ -83,4 +83,79 @@ namespace DotJEM.NUnit3.Tests.Constraints.Objects
             Assert.That(new { Test = "243", Age = 42 }, Has.Properties.NotEqualTo(new { Test = "243", Age = 43 }).Strict());
         }
     }
+
+    /// <summary>
+    /// Tests for stack overflow regression introduced under .NET 9.0 where
+    /// InitializeProperties was recursing into static properties (e.g. DateTime.Now, DateTime.Today)
+    /// that return new values on each access, defeating the cycle-detection in the references set.
+    /// </summary>
+    public class ObjectPropertiesEqualsConstraintStackOverflowRegressionTest
+    {
+        private class WithDateTime
+        {
+            public DateTime CreatedAt { get; set; }
+            public string Name { get; set; }
+        }
+
+        private class Parent
+        {
+            public Child Child { get; set; }
+        }
+
+        private class Child
+        {
+            public Parent Parent { get; set; }
+        }
+
+        private class WithTypeProperty
+        {
+            public Type ObjectType { get; set; }
+            public string Name { get; set; }
+        }
+
+        [Test]
+        public void InitializeProperties_ObjectWithDateTimeProperty_DoesNotStackOverflow()
+        {
+            var expected = new WithDateTime { CreatedAt = new DateTime(2024, 1, 15, 10, 30, 0), Name = "test" };
+            Assert.DoesNotThrow(() =>
+            {
+                var constraint = new ObjectPropertiesEqualsConstraint<WithDateTime>(expected);
+            });
+        }
+
+        [Test]
+        public void ApplyTo_ObjectWithDateTimeProperty_Passes()
+        {
+            var expected = new WithDateTime { CreatedAt = new DateTime(2024, 1, 15, 10, 30, 0), Name = "test" };
+            var actual = new WithDateTime { CreatedAt = new DateTime(2024, 1, 15, 10, 30, 0), Name = "test" };
+
+            var constraint = new ObjectPropertiesEqualsConstraint<WithDateTime>(expected);
+            ConstraintResult result = constraint.ApplyTo(actual);
+
+            Assert.That(result.IsSuccess, Is.True, result.ToString());
+        }
+
+        [Test]
+        public void InitializeProperties_ObjectWithCircularReference_DoesNotStackOverflow()
+        {
+            var parent = new Parent();
+            var child = new Child { Parent = parent };
+            parent.Child = child;
+
+            Assert.DoesNotThrow(() =>
+            {
+                var constraint = new ObjectPropertiesEqualsConstraint<Parent>(parent);
+            });
+        }
+
+        [Test]
+        public void InitializeProperties_ObjectWithTypeProperty_DoesNotStackOverflow()
+        {
+            var expected = new WithTypeProperty { ObjectType = typeof(string), Name = "test" };
+            Assert.DoesNotThrow(() =>
+            {
+                var constraint = new ObjectPropertiesEqualsConstraint<WithTypeProperty>(expected);
+            });
+        }
+    }
 }

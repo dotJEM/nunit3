@@ -54,7 +54,7 @@ namespace DotJEM.NUnit3.Constraints.Objects
             }
 
             Type type = Expected.GetType();
-            PropertyInfo[] properties = type.GetProperties();
+            PropertyInfo[] properties = type.GetProperties(BindingFlags.Public | BindingFlags.Instance);
 
             if (properties.Length == 0)
                 primitive = SetupPrimitive(Expected);
@@ -62,7 +62,17 @@ namespace DotJEM.NUnit3.Constraints.Objects
             //Note: No need for "Else", foreach automatically terminates on an empty collection.
             foreach (PropertyInfo property in properties.Where(property => property.GetIndexParameters().Length == 0))
             {
-                object expectedObject = property.GetValue(Expected, null);
+                object expectedObject;
+                try
+                {
+                    expectedObject = property.GetValue(Expected, null);
+                }
+                catch (Exception)
+                {
+                    // Skip properties that cannot be read (e.g. throw InvalidOperationException for certain states)
+                    continue;
+                }
+
                 if (references.Contains(expectedObject))
                     continue;
 
