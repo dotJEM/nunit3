@@ -13,9 +13,23 @@ namespace DotJEM.NUnit3
 
     public static class JsonConstraintsFactoryExtensions
     {
-        public static JsonEqualsConstraint EqualTo(this IJsonConstraintsFactory self, JToken expected)
+        public static JsonEqualsConstraint EqualTo(this IJsonConstraintsFactory self, JToken expected) => new(expected);
+
+        public static JsonEqualsConstraint EqualTo(this IJsonConstraintsFactory self, string expected)
+            => self.EqualTo(JToken.Parse(expected));
+
+        public static JsonEqualsConstraint EqualTo(this IJsonConstraintsFactory self, object expected)
+            => self.EqualTo(CoerceToJToken(expected));
+
+        private static JToken CoerceToJToken(object value)
         {
-            return new JsonEqualsConstraint(expected);
+            if (value is JToken token)
+                return token;
+
+            if(value is string str)
+                return JToken.Parse(str);
+
+            return JToken.FromObject(value);
         }
 
     }
@@ -24,54 +38,4 @@ namespace DotJEM.NUnit3
 
     public interface IJsonConstraintsFactory { }
 
-    //public static class Assert
-    //{
-    //    public static void That<T>(IConstraintAndValue expression)
-    //    {
-
-    //    }
-    //}
-
-    //public static class IsAsExtention
-    //{
-    //    public static IConstraintBuilder Is(this object value)
-    //    {
-    //        return new ConstraintBuilder(value);
-    //    }
-    //}
-
-    //public interface IConstraintBuilder
-    //{
-    //}
-
-    //class ConstraintBuilder : IConstraintBuilder
-    //{
-    //    public object Value { get; }
-
-    //    public ConstraintBuilder(object value)
-    //    {
-    //        Value = value;
-    //    }
-    //}
-
-    //public static class ConstraintBuilderStandardIs
-    //{
-    //    public static void EqualTo(this IConstraintBuilder self, object value)
-    //    {
-    //        return Is.EqualTo(value)
-    //    }
-    //}
-
-    //public interface IConstraintAndValue
-    //{
-
-    //}
-
-    //public class test
-    //{
-    //    public void Test()
-    //    {
-    //        Assert.That(42.Is().EqualTo(42));
-    //    }
-    //}
 }

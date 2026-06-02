@@ -1,14 +1,10 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Runtime.Remoting.Messaging;
-using System.Text;
-using System.Threading.Tasks;
+﻿using System.Threading;
 using NUnit.Framework;
 using NUnit.Framework.Interfaces;
 using NUnit.Framework.Internal;
+using DotJEM.NUnit3.Experimental.Expectations;
 
-namespace DotJEM.NUnit3.Tests
+namespace DotJEM.NUnit3.Experimental.Test
 {
     public class Class1
     {
@@ -19,7 +15,7 @@ namespace DotJEM.NUnit3.Tests
 
             dynamic x;
 
-            //Assert.That(42.Is().EqualTo(42) & 32.Is().EqualTo(32));
+            XAssert.That(42.Is().EqualTo(42) & 32.Is().EqualTo(32));
             //Expect(x)
         }
 
