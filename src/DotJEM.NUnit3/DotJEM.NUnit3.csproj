@@ -4,7 +4,7 @@
     <Version>0.1.0</Version>
     <AssemblyVersion>0.0.1.0</AssemblyVersion>
     <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
-    <Copyright>Copyright (c) 2020 dotJEM</Copyright>
+    <Copyright>Copyright (c) 2026 dotJEM</Copyright>
     <PackageLicenseExpression>MIT</PackageLicenseExpression>
     <FileVersion>0.0.1.0</FileVersion>
     <PackageProjectUrl>https://github.com/dotJEM/nunit3</PackageProjectUrl>

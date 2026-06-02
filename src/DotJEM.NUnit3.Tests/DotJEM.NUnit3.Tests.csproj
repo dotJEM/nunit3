@@ -1,9 +1,9 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
-    <TargetFramework>net48</TargetFramework>
+    <TargetFrameworks>net48,net9.0</TargetFrameworks>
     <AssemblyTitle>DotJEM.NUnit3.Tests</AssemblyTitle>
     <Product>DotJEM.NUnit3.Tests</Product>
-    <Copyright>Copyright ©  2019</Copyright>
+    <Copyright>Copyright © 2026</Copyright>
     <OutputPath>bin\$(Configuration)\</OutputPath>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
