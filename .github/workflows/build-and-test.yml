@@ -46,13 +46,15 @@ jobs:
       
     - name: Build
       working-directory: ./src
-      run: |
-        dotnet build DotJEM.NUnit3.sln --configuration Release --no-restore \
-          /p:Version="${{ steps.version.outputs.semver }}" \
-          /p:PackageVersion="${{ steps.version.outputs.semver }}" \
-          /p:AssemblyVersion="${{ steps.version.outputs.msver }}" \
-          /p:FileVersion="${{ steps.version.outputs.msver }}"
-
+      shell: pwsh
+      run: >
+        dotnet build DotJEM.NUnit3.sln
+        --configuration Release
+        --no-restore
+        /p:Version="${{ steps.version.outputs.semver }}"
+        /p:PackageVersion="${{ steps.version.outputs.semver }}"
+        /p:AssemblyVersion="${{ steps.version.outputs.msver }}"
+        /p:FileVersion="${{ steps.version.outputs.msver }}"
     
     - name: Test
       working-directory: ./src
