@@ -85,7 +85,7 @@ namespace DotJEM.NUnit3.Tests.Constraints.Objects
         public void ApplyTo_WhenExpectedAndActualAreNull_Passes()
         {
             var constraint = Has.Properties.EqualTo<string>(null);
-            ConstraintResult result = constraint.ApplyTo(null);
+            ConstraintResult result = constraint.ApplyTo<string>(null);
 
             Assert.That(result.IsSuccess, Is.True, result.ToString());
         }
