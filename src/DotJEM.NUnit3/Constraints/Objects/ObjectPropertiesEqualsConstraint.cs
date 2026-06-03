@@ -26,26 +26,26 @@ namespace DotJEM.NUnit3.Constraints.Objects
 
         private readonly HashSet<object> references = new HashSet<object>(/*new ReferenceComparer()*/);
 
-        public ObjectPropertiesEqualsConstraint(T expected)
+        public ObjectPropertiesEqualsConstraint(T expected, bool includeNonPublic)
         {
             Expected = expected;
 
             // ReSharper disable DoNotCallOverridableMethodsInConstructor
-            InitializeProperties();
+            InitializeProperties(includeNonPublic);
             // ReSharper restore DoNotCallOverridableMethodsInConstructor
         }
 
-        public ObjectPropertiesEqualsConstraint(T expected, HashSet<object> references)
+        public ObjectPropertiesEqualsConstraint(T expected, bool includeNonPublic, HashSet<object> references)
         {
             Expected = expected;
             this.references = references;
 
             // ReSharper disable DoNotCallOverridableMethodsInConstructor
-            InitializeProperties();
+            InitializeProperties(includeNonPublic);
             // ReSharper restore DoNotCallOverridableMethodsInConstructor
         }
 
-        protected virtual void InitializeProperties()
+        protected virtual void InitializeProperties(bool includeNonPublic)
         {
             if (ReferenceEquals(Expected, null))
             {
@@ -60,8 +60,10 @@ namespace DotJEM.NUnit3.Constraints.Objects
                 return;
             }
 
-
-            PropertyInfo[] properties = type.GetProperties(BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic);
+            PropertyInfo[] properties = type.GetProperties(includeNonPublic ?
+                BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic :
+                BindingFlags.Instance | BindingFlags.Public
+                );
             if (properties.Length == 0)
                 primitive = SetupPrimitive(Expected);
 

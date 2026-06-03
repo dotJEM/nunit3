@@ -11,14 +11,14 @@
 
     public static class PropertiesConstraintsFactoryExtensions
     {
-        public static ObjectPropertiesEqualsConstraint<T> EqualTo<T>(this IPropertiesConstraintsFactory self, T expected)
+        public static ObjectPropertiesEqualsConstraint<T> EqualTo<T>(this IPropertiesConstraintsFactory self, T expected, bool includeNonPublic = false)
         {
-            return new ObjectPropertiesEqualsConstraint<T>(expected);
+            return new ObjectPropertiesEqualsConstraint<T>(expected, includeNonPublic);
         }
 
-        public static ObjectPropertiesNotEqualsConstraint<T> NotEqualTo<T>(this IPropertiesConstraintsFactory self, T expected)
+        public static ObjectPropertiesNotEqualsConstraint<T> NotEqualTo<T>(this IPropertiesConstraintsFactory self, T expected, bool includeNonPublic = false)
         {
-            return new ObjectPropertiesNotEqualsConstraint<T>(expected);
+            return new ObjectPropertiesNotEqualsConstraint<T>(expected, includeNonPublic);
         }
     }
 }
