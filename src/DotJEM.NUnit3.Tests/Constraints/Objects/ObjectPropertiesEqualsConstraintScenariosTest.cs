@@ -204,6 +204,92 @@ namespace DotJEM.NUnit3.Tests.Constraints.Objects
         }
     }
 
+    public class ObjectPropertiesEqualsConstraintSharedReferenceScenariosTest
+    {
+        [Test]
+        public void ApplyTo_SharedExpectedReference_FailsWhenActualUsesDistinctInstances()
+        {
+            // expected.Home and expected.Work point to the exact same Address instance
+            Address sharedAddress = new Address { Street = "Main Street", ZipCode = 2800 };
+            PersonWithTwoAddresses expected = new PersonWithTwoAddresses { Home = sharedAddress, Work = sharedAddress };
+            var constraint = Has.Properties.EqualTo(expected);
+
+            // actual.Home and actual.Work are different objects, even though their values match
+            PersonWithTwoAddresses actual = new PersonWithTwoAddresses
+            {
+                Home = new Address { Street = "Main Street", ZipCode = 2800 },
+                Work = new Address { Street = "Main Street", ZipCode = 2800 }
+            };
+
+            ConstraintResult result = constraint.ApplyTo(actual);
+
+            Assert.That(result.IsSuccess, Is.False,
+                "Work should fail because expected.Work is the same reference as expected.Home, " +
+                "but actual.Work is a distinct object from actual.Home.");
+        }
+
+        [Test]
+        public void ApplyTo_SharedExpectedReference_PassesWhenActualAlsoSharesTheSameReference()
+        {
+            Address sharedAddress = new Address { Street = "Main Street", ZipCode = 2800 };
+            PersonWithTwoAddresses expected = new PersonWithTwoAddresses { Home = sharedAddress, Work = sharedAddress };
+            var constraint = Has.Properties.EqualTo(expected);
+
+            Address sharedActualAddress = new Address { Street = "Main Street", ZipCode = 2800 };
+            PersonWithTwoAddresses actual = new PersonWithTwoAddresses
+            {
+                Home = sharedActualAddress,
+                Work = sharedActualAddress
+            };
+
+            ConstraintResult result = constraint.ApplyTo(actual);
+
+            Assert.That(result.IsSuccess, Is.True, result.ToString());
+        }
+
+        [Test]
+        public void ApplyTo_DistinctExpectedReferences_PassesRegardlessOfActualSharing()
+        {
+            // expected uses two separate but value-equal Address instances (no shared reference)
+            PersonWithTwoAddresses expected = new PersonWithTwoAddresses
+            {
+                Home = new Address { Street = "Main Street", ZipCode = 2800 },
+                Work = new Address { Street = "Main Street", ZipCode = 2800 }
+            };
+            var constraint = Has.Properties.EqualTo(expected);
+
+            // actual happens to share a single Address instance - still passes because
+            // expected doesn't require reference equality between Home and Work
+            Address sharedActualAddress = new Address { Street = "Main Street", ZipCode = 2800 };
+            PersonWithTwoAddresses actual = new PersonWithTwoAddresses
+            {
+                Home = sharedActualAddress,
+                Work = sharedActualAddress
+            };
+
+            ConstraintResult result = constraint.ApplyTo(actual);
+
+            Assert.That(result.IsSuccess, Is.True, result.ToString());
+        }
+
+        [Test]
+        public void ApplyTo_SelfReferencingNodeVsNonCyclicNode_Fails()
+        {
+            CircularNode expected = new CircularNode { Name = "root" };
+            expected.Next = expected;
+            var constraint = Has.Properties.EqualTo(expected);
+
+            // actual.Next points to a different node, not itself
+            CircularNode actual = new CircularNode { Name = "root" };
+            actual.Next = new CircularNode { Name = "root", Next = null };
+
+            ConstraintResult result = constraint.ApplyTo(actual);
+
+            Assert.That(result.IsSuccess, Is.False,
+                "Should fail because expected has a self-reference but actual does not.");
+        }
+    }
+
     public class ObjectPropertiesEqualsConstraintDiagnosticTest
     {
         [Test, Explicit("This test-case is meant to fail to verify how the error message is displayed in NUnit runners, e.g. ReSharper's runner")]
@@ -278,5 +364,11 @@ namespace DotJEM.NUnit3.Tests.Constraints.Objects
     {
         public string Name { get; set; }
         public CircularNode Next { get; set; }
+    }
+
+    internal class PersonWithTwoAddresses
+    {
+        public Address Home { get; set; }
+        public Address Work { get; set; }
     }
 }

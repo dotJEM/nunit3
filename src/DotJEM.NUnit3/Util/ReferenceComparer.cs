@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using System.Runtime.CompilerServices;
 
 namespace DotJEM.NUnit3.Util
 {
@@ -11,7 +12,7 @@ namespace DotJEM.NUnit3.Util
 
         public int GetHashCode(object obj)
         {
-            return obj.GetHashCode();
+            return RuntimeHelpers.GetHashCode(obj);
         }
     }
 }
