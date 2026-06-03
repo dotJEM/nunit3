@@ -206,7 +206,7 @@ namespace DotJEM.NUnit3.Tests.Constraints.Objects
 
     public class ObjectPropertiesEqualsConstraintDiagnosticTest
     {
-        [Test, Explicit("This test-case is meant to fail to verify how the error message is displayed in NUnit runners, e.g. ReSharpers runner")]
+        [Test, Explicit("This test-case is meant to fail to verify how the error message is displayed in NUnit runners, e.g. ReSharper's runner")]
         public void Test_InRunnerDisplay()
         {
             Assert.That(new { Test = "243", Age = 42 }, Has.Properties.EqualTo(new { Test = "222", Age = 46, Missing = true }));
