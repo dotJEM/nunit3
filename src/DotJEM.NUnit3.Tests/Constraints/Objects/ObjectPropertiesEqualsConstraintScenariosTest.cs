@@ -1,5 +1,6 @@
 using System;
 using DotJEM.NUnit3.Constraints;
+using DotJEM.NUnit3.Constraints.Objects;
 using NUnit.Framework;
 using NUnit.Framework.Constraints;
 
