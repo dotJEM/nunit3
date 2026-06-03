@@ -9,6 +9,7 @@ namespace DotJEM.NUnit3.Constraints.Objects
     /// actual objects (match-time) so that back-references can be verified via reference equality
     /// instead of being silently skipped.
     /// </summary>
+    /// <remarks>This class is not thread-safe. NUnit constraints are expected to be used single-threaded.</remarks>
     internal class ComparisonContext
     {
         private readonly Dictionary<object, int> _expectedRefIds = new Dictionary<object, int>(new ReferenceComparer());

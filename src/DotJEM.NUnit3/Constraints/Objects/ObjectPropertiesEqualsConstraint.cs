@@ -89,6 +89,8 @@ namespace DotJEM.NUnit3.Constraints.Objects
                 }
 
                 Type typeOfExpectedObject = expectedObject.GetType();
+                // IEnumerable types are handled element-by-element by EnumerableEqualsConstraint,
+                // which performs its own structural comparison and does not need reference tracking.
                 if (!IsCoreType(typeOfExpectedObject) && !typeof(IEnumerable).IsAssignableFrom(typeOfExpectedObject))
                 {
                     if (!_context.TryRegisterExpected(expectedObject, out int refId))
