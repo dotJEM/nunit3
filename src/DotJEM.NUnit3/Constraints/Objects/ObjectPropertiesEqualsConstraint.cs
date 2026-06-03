@@ -18,6 +18,8 @@ namespace DotJEM.NUnit3.Constraints.Objects
 
     public class ObjectPropertiesEqualsConstraint<T> : BaseConstraint, IObjectPropertiesEqualsConstraint
     {
+        private readonly bool includeNonPublic;
+
         protected Constraint primitive;
         protected readonly Dictionary<string, Property> propertyMap = new Dictionary<string, Property>();
 
@@ -28,6 +30,7 @@ namespace DotJEM.NUnit3.Constraints.Objects
 
         public ObjectPropertiesEqualsConstraint(T expected, bool includeNonPublic)
         {
+            this.includeNonPublic = includeNonPublic;
             Expected = expected;
 
             // ReSharper disable DoNotCallOverridableMethodsInConstructor
@@ -160,7 +163,7 @@ namespace DotJEM.NUnit3.Constraints.Objects
             }
             else
             {
-                SetupProperty(property, new ObjectPropertiesEqualsConstraint<object>(expected, references));
+                SetupProperty(property, new ObjectPropertiesEqualsConstraint<object>(expected, includeNonPublic, references));
             }
         }
 
