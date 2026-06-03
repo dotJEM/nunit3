@@ -215,49 +215,49 @@ namespace DotJEM.NUnit3.Tests.Constraints.Objects
 
     internal class SimplePerson
     {
-        public string Name { get; init; }
-        public int Age { get; init; }
+        public string Name { get; set; }
+        public int Age { get; set; }
     }
 
     internal class ComplexPerson
     {
-        public string Name { get; init; }
-        public Address Address { get; init; }
-        public int[] LuckyNumbers { get; init; }
+        public string Name { get; set; }
+        public Address Address { get; set; }
+        public int[] LuckyNumbers { get; set; }
     }
 
     internal class Address
     {
-        public string Street { get; init; }
-        public int ZipCode { get; init; }
+        public string Street { get; set; }
+        public int ZipCode { get; set; }
     }
 
     internal class PersonWithAge
     {
-        public string Name { get; init; }
-        public int Age { get; init; }
+        public string Name { get; set; }
+        public int Age { get; set; }
     }
 
     internal class PersonWithoutAge
     {
-        public string Name { get; init; }
+        public string Name { get; set; }
     }
 
     internal class UserProfile
     {
-        public string Name { get; init; }
-        public string Email { get; init; }
+        public string Name { get; set; }
+        public string Email { get; set; }
     }
 
     internal class TextPair
     {
-        public string First { get; init; }
-        public string Second { get; init; }
+        public string First { get; set; }
+        public string Second { get; set; }
     }
 
     internal class ShapeHolder
     {
-        public ShapeBase Shape { get; init; }
+        public ShapeBase Shape { get; set; }
     }
 
     internal class DerivedShapeHolder : ShapeHolder
@@ -266,17 +266,17 @@ namespace DotJEM.NUnit3.Tests.Constraints.Objects
 
     internal class ShapeBase
     {
-        public string Name { get; init; }
+        public string Name { get; set; }
     }
 
     internal class DerivedShape : ShapeBase
     {
-        public int Sides { get; init; }
+        public int Sides { get; set; }
     }
 
     internal class CircularNode
     {
-        public string Name { get; init; }
+        public string Name { get; set; }
         public CircularNode Next { get; set; }
     }
 }
