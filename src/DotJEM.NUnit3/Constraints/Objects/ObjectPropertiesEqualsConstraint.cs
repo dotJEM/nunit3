@@ -26,22 +26,29 @@ namespace DotJEM.NUnit3.Constraints.Objects
         protected T Expected { get; }
         public bool ExplicitTypesFlag { get; set; }
 
-        private readonly HashSet<object> references = new HashSet<object>(/*new ReferenceComparer()*/);
+        private readonly ComparisonContext _context;
+        private int _refId = -1;
 
         public ObjectPropertiesEqualsConstraint(T expected, bool includeNonPublic)
         {
             this.includeNonPublic = includeNonPublic;
             Expected = expected;
+            _context = new ComparisonContext();
+            if (!ReferenceEquals(Expected, null) && !IsCoreType(Expected.GetType()))
+                _context.TryRegisterExpected(Expected, out _refId);
 
             // ReSharper disable DoNotCallOverridableMethodsInConstructor
             InitializeProperties(includeNonPublic);
             // ReSharper restore DoNotCallOverridableMethodsInConstructor
         }
 
-        public ObjectPropertiesEqualsConstraint(T expected, bool includeNonPublic, HashSet<object> references)
+        internal ObjectPropertiesEqualsConstraint(T expected, bool includeNonPublic, ComparisonContext context)
         {
+            this.includeNonPublic = includeNonPublic;
             Expected = expected;
-            this.references = references;
+            _context = context;
+            if (!ReferenceEquals(Expected, null) && !IsCoreType(Expected.GetType()))
+                _context.TryRegisterExpected(Expected, out _refId);
 
             // ReSharper disable DoNotCallOverridableMethodsInConstructor
             InitializeProperties(includeNonPublic);
@@ -74,24 +81,21 @@ namespace DotJEM.NUnit3.Constraints.Objects
             foreach (PropertyInfo property in properties.Where(property => property.GetIndexParameters().Length == 0))
             {
                 object expectedObject = property.GetValue(Expected, null);
-                if (references.Contains(expectedObject))
-                    continue;
 
-                if (ReferenceEquals(expectedObject, null)) {
+                if (ReferenceEquals(expectedObject, null))
+                {
                     SetupProperty(property, expectedObject);
                     continue;
                 }
 
-                //TODO: This is to work around recursion, but this is actually problematic when we only look on the expected
-                //      side of things as that can lead to skipping objects, so we need a better way.
-                //      what we could do, is as soon as we hit a referene we have seen before, we make a constraint that requires
-                //      a reference equal check to the previously seen object, this will be a bit cumbersome as we need to store 
-                //      allot of information so that we know when doing the actual assertion, that for some properties, we need
-                //      them so we can go back with a reference equals later.
-
                 Type typeOfExpectedObject = expectedObject.GetType();
-                if (!typeOfExpectedObject.IsPrimitive && typeOfExpectedObject != typeof(string)) {
-                    references.Add(expectedObject);
+                if (!IsCoreType(typeOfExpectedObject) && !typeof(IEnumerable).IsAssignableFrom(typeOfExpectedObject))
+                {
+                    if (!_context.TryRegisterExpected(expectedObject, out int refId))
+                    {
+                        SetupProperty(property, new BackReferenceConstraint(refId, _context));
+                        continue;
+                    }
                 }
 
                 SetupProperty(property, expectedObject);
@@ -163,7 +167,7 @@ namespace DotJEM.NUnit3.Constraints.Objects
             }
             else
             {
-                SetupProperty(property, new ObjectPropertiesEqualsConstraint<object>(expected, includeNonPublic, references));
+                SetupProperty(property, new ObjectPropertiesEqualsConstraint<object>(expected, includeNonPublic, _context));
             }
         }
 
@@ -178,33 +182,44 @@ namespace DotJEM.NUnit3.Constraints.Objects
 
         protected override IMatchResult Matches<T1>(T1 actual)
         {
-            if (ExplicitTypesFlag && ReferenceEquals(actual.GetType(), Expected.GetType()) == false)
-                return MatchResult.Fail($"was of type {Expected.GetType()} (ExplicitTypesFlag was set)", $"was of type {actual.GetType()}");
-
-            if (primitive != null)
-                return new ConstraintResultMatchResult(primitive.ApplyTo(actual));
-
-            PropertiesMatchResult result =  new PropertiesMatchResult();
-            foreach (Property property in propertyMap.Values)
+            _context.EnterMatch();
+            try
             {
-                try
-                {
-                    property.Actual = property.Info.GetValue(actual, null);
-                    property.Expected = property.Info.GetValue(Expected, null);
-                    ConstraintResult pr = property.Apply();
-                    if (!pr.IsSuccess)
-                        result.Failure(property.Info, new ConstraintResultMatchResult(pr));
-                }
-                catch (TargetException)
-                {
-                    result.Failure(property.Info, MatchResult.Fail(
-                        expectedMessage: $"[{Expected.GetType().Name}] contained the property '{property.Info.Name}'.",
-                        actualMessage: $"[{actual.GetType().Name}] did not."
-                    ));
-                }
-            }
+                if (_refId >= 0)
+                    _context.BindActual(_refId, actual);
 
-            return result;
+                if (ExplicitTypesFlag && ReferenceEquals(actual.GetType(), Expected.GetType()) == false)
+                    return MatchResult.Fail($"was of type {Expected.GetType()} (ExplicitTypesFlag was set)", $"was of type {actual.GetType()}");
+
+                if (primitive != null)
+                    return new ConstraintResultMatchResult(primitive.ApplyTo(actual));
+
+                PropertiesMatchResult result = new PropertiesMatchResult();
+                foreach (Property property in propertyMap.Values)
+                {
+                    try
+                    {
+                        property.Actual = property.Info.GetValue(actual, null);
+                        property.Expected = property.Info.GetValue(Expected, null);
+                        ConstraintResult pr = property.Apply();
+                        if (!pr.IsSuccess)
+                            result.Failure(property.Info, new ConstraintResultMatchResult(pr));
+                    }
+                    catch (TargetException)
+                    {
+                        result.Failure(property.Info, MatchResult.Fail(
+                            expectedMessage: $"[{Expected.GetType().Name}] contained the property '{property.Info.Name}'.",
+                            actualMessage: $"[{actual.GetType().Name}] did not."
+                        ));
+                    }
+                }
+
+                return result;
+            }
+            finally
+            {
+                _context.ExitMatch();
+            }
         }
 
         /// <summary>
@@ -386,5 +401,35 @@ namespace DotJEM.NUnit3.Constraints.Objects
         {
             failures.Add((property, pr));
         }
+    }
+
+    /// <summary>
+    /// A constraint that verifies a property value is the same object reference as the actual
+    /// value that was bound to a previously seen expected object during the comparison. This is
+    /// used to enforce structural equivalence when the expected object graph contains shared or
+    /// circular references.
+    /// </summary>
+    internal class BackReferenceConstraint : Constraint
+    {
+        private readonly int _refId;
+        private readonly ComparisonContext _context;
+
+        public BackReferenceConstraint(int refId, ComparisonContext context)
+        {
+            _refId = refId;
+            _context = context;
+        }
+
+        public override ConstraintResult ApplyTo<T>(T actual)
+        {
+            if (_context.TryGetActualBinding(_refId, out object expectedActual))
+            {
+                bool isMatch = ReferenceEquals(actual, expectedActual);
+                return new ConstraintResult(this, actual, isMatch);
+            }
+            return new ConstraintResult(this, actual, false);
+        }
+
+        public override string Description => "same object reference as a previously seen expected value";
     }
 }

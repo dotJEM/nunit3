@@ -1,5 +1,4 @@
-﻿using System.Collections.Generic;
-using System.Reflection;
+﻿using System.Reflection;
 using NUnit.Framework.Constraints;
 
 namespace DotJEM.NUnit3.Constraints.Objects;
@@ -12,7 +11,7 @@ public class ObjectPropertiesNotEqualsConstraint<T> : ObjectPropertiesEqualsCons
     {
     }
 
-    public ObjectPropertiesNotEqualsConstraint(T expected, bool includeNonPublic, HashSet<object> references) : base(expected, includeNonPublic, references)
+    internal ObjectPropertiesNotEqualsConstraint(T expected, bool includeNonPublic, ComparisonContext context) : base(expected, includeNonPublic, context)
     {
     }
 
